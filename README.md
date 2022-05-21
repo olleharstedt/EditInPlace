@@ -1,6 +1,6 @@
 This plugin adds edit-in-place functionality to LimeSurvey preview mode.
 
-Features:
+**Features**:
 
 * Change question text
 * Change question help
@@ -9,11 +9,17 @@ Features:
 * Add new question
 * Delete question
 
-Not supported so far:
+**Not supported so far**:
 
 * Add or edit subquestionsor answer options
 * Change question type
 
-You can track progress here:
+**Compatibility**:
 
-https://project.limesurvey.org/T312
+* LimeSurvey 6.0 on up (not yet supported)
+
+You can track progress here: https://project.limesurvey.org/T312
+
+**License**:
+
+GPL-2
