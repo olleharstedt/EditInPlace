@@ -742,6 +742,19 @@ function initEditInPlace() {
         const root2 = ReactDOM.createRoot(container2);
         root2.render(<TopButtons />);
     }
+
+    // Init subquestion edit
+    $('.subquestion-list [id^=answertext').each(function(i, el) {
+        //return <button onClick={this.onclick} className="btn btn-xs" data-toggle="tooltip" data-placement="right" title={this.props.tooltipTitle}>
+        //<i className={"fa fa-fw fa-" + this.props.icon}></i>
+        const button = $('<button data-toggle="tooltip" title="Edit" class="btn btn-xs hidden"><i class="fa fa-fw fa-pencil"></i></button>');
+        $(el).append(button);
+        $(el).hover(function() {
+            console.log('hover');
+            button.show();
+            // show button
+        });
+    });
 }
 
 // This will be ready after the jQuery is ready, due to Babel.
