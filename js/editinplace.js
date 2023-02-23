@@ -723,6 +723,27 @@ function initEditInPlaceMisc(el /*: HTMLElement */) {
     root.render(<ToolButtons questionId={questionId} containerId={id} />);
 }
 
+function initEditSubquestion(el /*: HTMLElement */) {
+    // TODO: Make React component of this instead? But don't need a container for each subquestion?
+    const button = document.createElement('button');
+    button.dataset.toggle = 'tooltip';
+    button.title = 'Edit subquestion';
+    button.innerHTML = '<i class="fa fa-fw fa-pencil"></i>';
+    button.className = 'btn btn-xs hidden';
+    $(button).on('click', function(event) {
+        event.preventDefault();
+        // Show modal
+        $('#subquestion-modal').modal();
+        return false;
+    });
+    $(el).prepend(button);
+    $(el).hover(function() {
+        $(button).removeClass('hidden');
+    }, function () {
+        $(button).addClass('hidden');
+    });
+}
+
 /**
  * @return {void}
  */
@@ -745,15 +766,7 @@ function initEditInPlace() {
 
     // Init subquestion edit
     $('.subquestion-list [id^=answertext').each(function(i, el) {
-        //return <button onClick={this.onclick} className="btn btn-xs" data-toggle="tooltip" data-placement="right" title={this.props.tooltipTitle}>
-        //<i className={"fa fa-fw fa-" + this.props.icon}></i>
-        const button = $('<button data-toggle="tooltip" title="Edit" class="btn btn-xs hidden"><i class="fa fa-fw fa-pencil"></i></button>');
-        $(el).append(button);
-        $(el).hover(function() {
-            console.log('hover');
-            button.show();
-            // show button
-        });
+        initEditSubquestion(el);
     });
 }
 
