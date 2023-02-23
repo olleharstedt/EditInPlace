@@ -75,7 +75,8 @@ JAVASCRIPT
                 CClientScript::POS_BEGIN
             );
 
-            $this->renderPartial('modal', []);
+            // TODO: Not used at the moment.
+            //$this->renderPartial('modal', []);
 
             $jsUrl = Yii::app()->assetManager->publish(dirname(__FILE__) . '/js/editinplace.js');
             $cssUrl = Yii::app()->assetManager->publish(dirname(__FILE__) . '/css/editinplace.css');

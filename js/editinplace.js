@@ -723,6 +723,10 @@ function initEditInPlaceMisc(el /*: HTMLElement */) {
     root.render(<ToolButtons questionId={questionId} containerId={id} />);
 }
 
+/**
+ * @param {HTMLElement} Element which contains subquestion text. Always th?
+ * @return {void}
+ */
 function initEditSubquestion(el /*: HTMLElement */) {
     // TODO: Make React component of this instead? But don't need a container for each subquestion?
     const button = document.createElement('button');
@@ -732,8 +736,16 @@ function initEditSubquestion(el /*: HTMLElement */) {
     button.className = 'btn btn-xs hidden';
     $(button).on('click', function(event) {
         event.preventDefault();
-        // Show modal
-        $('#subquestion-modal').modal();
+
+        const input = document.createElement('input');
+        input.className = "form-control";
+        input.value = $(el).text();
+        //$('#subquestion-modal').modal();
+        $(el).html(`
+            <button class="btn btn-xs"><i class="fa fa-fw fa-save"></i></button>
+            <button class="btn btn-xs"><i class="fa fa-fw fa-close"></i></button>`
+        );
+        $(el).prepend(input);
         return false;
     });
     $(el).prepend(button);
