@@ -14,6 +14,38 @@ class EditInPlace extends PluginBase
     {
         $this->subscribe('beforeSurveyPage');
         $this->subscribe('newDirectRequest');
+        $this->subscribe('beforeSurveySettings');
+        $this->subscribe('newSurveySettings');
+    }
+
+    public function beforeSurveySettings()
+	{
+		$event = $this->event;
+		$surveyId = intval($event->get('survey'));
+
+        $event->set(
+            "surveysettings.{$this->id}",
+            [
+                'name' => get_class($this),
+                'settings' => [
+                    'isActive' => [
+                        'type' => 'boolean',
+                        'label' => 'isActive',
+                        'current' => $this->getIsActive($surveyId),
+                        'help' => 'Activate plugin for this survey'
+                    ],
+                ]
+            ]
+        );
+	}
+
+    public function newSurveySettings()
+    {
+        $event = $this->event;
+        foreach ($event->get('settings') as $name => $value)
+        {
+            $this->set($name, $value, 'Survey', $event->get('survey'), false);
+        }
     }
 
     public function beforeSurveyPage()
@@ -22,6 +54,10 @@ class EditInPlace extends PluginBase
         $surveyId = $event->get('surveyId');
 
         if (!Permission::model()->hasSurveyPermission($surveyId, 'surveycontent', 'update')) {
+            return;
+        }
+
+        if (!$this->getIsActive($surveyId)) {
             return;
         }
 
@@ -476,5 +512,10 @@ JAVASCRIPT
         buildsurveysession($surveyId);
         initFieldArray($surveyId, $_SESSION['survey_' . $surveyId]['fieldmap']);
         $_SESSION[$sessId]['step'] = $step;
+    }
+
+    private function getIsActive(int $sid): bool
+    {
+        return (bool) $this->get('isActive', 'Survey', $sid, false);
     }
 }
