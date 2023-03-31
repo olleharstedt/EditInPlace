@@ -607,6 +607,29 @@ class TopButtons extends React.Component {
     }
 }
 
+class EditSubQuestion extends React.Component {
+    constructor(props) {
+        super(props);
+        this.onclick = this.onclick.bind(this);
+    }
+
+    onclick() {
+        console.log("moo");
+    }
+
+    render() {
+        return <div>
+            <input className="form-control" type="text" defaultValue={this.props.oldText} />
+            <div className="edit-in-place-buttons">
+                <button className="btn btn-xs"><i className="fa fa-fw fa-save"></i></button>
+                <button onClick={() => this.onclick()} className="btn btn-xs" title="Cancel" data-toggle="tooltip">
+                    <i className="fa fa-fw fa-close"></i>
+                </button>
+            </div>
+        </div>
+    }
+}
+
 // TODO: Remove code duplication
 function showSuccessMessage(containerId, text) {
     editInPlaceQueue.add(new QueueMessage(containerId, 'Saved'));
@@ -730,6 +753,8 @@ function initEditInPlaceMisc(el /*: HTMLElement */) {
 function initEditSubquestion(el /*: HTMLElement */) {
     // TODO: Make React component of this instead? But don't need a container for each subquestion?
     const button = document.createElement('button');
+    const oldText = $(el).text().trim();
+    const oldHtml = $(el).html();
     button.dataset.toggle = 'tooltip';
     button.title = 'Edit subquestion';
     button.innerHTML = '<i class="fa fa-fw fa-pencil"></i>';
@@ -737,15 +762,11 @@ function initEditSubquestion(el /*: HTMLElement */) {
     $(button).on('click', function(event) {
         event.preventDefault();
 
-        const input = document.createElement('input');
-        input.className = "form-control";
-        input.value = $(el).text();
-        //$('#subquestion-modal').modal();
-        $(el).html(`
-            <button class="btn btn-xs"><i class="fa fa-fw fa-save"></i></button>
-            <button class="btn btn-xs"><i class="fa fa-fw fa-close"></i></button>`
-        );
-        $(el).prepend(input);
+        const container = document.createElement('div');
+        $(el).replaceWith(container);
+        const root = ReactDOM.createRoot(container);
+        root.render(<EditSubQuestion oldText={oldText} oldHtml={oldHtml} />);
+
         return false;
     });
     $(el).prepend(button);
