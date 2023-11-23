@@ -610,19 +610,37 @@ class TopButtons extends React.Component {
 class EditSubQuestion extends React.Component {
     constructor(props) {
         super(props);
-        this.onclick = this.onclick.bind(this);
+        this.onclick       = this.onclick.bind(this);
+        this.onclickCancel = this.onclickCancel.bind(this);
     }
 
-    onclick() {
-        console.log("moo");
+    onclick(event) {
+        event.preventDefault();
+        console.log("save");
+        return false;
+    }
+
+    onclickCancel(event) {
+        event.preventDefault();
+        console.log('onclickCancel');
+        $(this.props.oldElement).replaceWith(this.props.oldHtml);
+        //data.questionId = this.props.containerId.replace('question', '');
+        //const id = '#' + this.props.containerId;
+        //resetContainerHtml(that.props.containerId)
+        return false;
+    }
+
+    componentDidMount() {
+        $('.tooltip').hide()
+        $('[data-toggle="tooltip"]').tooltip()
     }
 
     render() {
         return <div>
             <input className="form-control" type="text" defaultValue={this.props.oldText} />
             <div className="edit-in-place-buttons">
-                <button className="btn btn-xs"><i className="fa fa-fw fa-save"></i></button>
-                <button onClick={() => this.onclick()} className="btn btn-xs" title="Cancel" data-toggle="tooltip">
+                <button onClick={this.onclick} className="btn btn-xs"><i className="fa fa-fw fa-save" title="Save" data-toggle="tooltip"></i></button>
+                <button onClick={this.onclickCancel} className="btn btn-xs" title="Cancel" data-toggle="tooltip">
                     <i className="fa fa-fw fa-close"></i>
                 </button>
             </div>
@@ -706,7 +724,6 @@ function resetContainerHtml(id) {
             $("#" + id).replaceWith(div);
 
             injectNewLemscripts(doc);
-
             resetExpressions(questionId);
             initEditInPlaceMisc(div);
         }
@@ -765,7 +782,7 @@ function initEditSubquestion(el /*: HTMLElement */) {
         const container = document.createElement('div');
         $(el).replaceWith(container);
         const root = ReactDOM.createRoot(container);
-        root.render(<EditSubQuestion oldText={oldText} oldHtml={oldHtml} />);
+        root.render(<EditSubQuestion oldText={oldText} oldHtml={oldHtml} oldElement={el} />);
 
         return false;
     });
