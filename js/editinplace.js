@@ -618,6 +618,7 @@ class EditSubQuestion extends React.Component {
         event.preventDefault();
         console.log("save");
 
+        const that = this;
         const data = {};
         data[editInPlaceGlobalData.csrfTokenName] = editInPlaceGlobalData.csrfToken;
         data.lang = editInPlaceGlobalData.lang;
@@ -811,7 +812,7 @@ function initEditSubquestion(el /*: HTMLElement */) {
         const container = document.createElement('div');
         $(el).html(container);
         const root = ReactDOM.createRoot(container);
-        root.render(<EditSubQuestion oldText={oldText} oldHtml={oldHtml} oldElement={el} />);
+        root.render(<EditSubQuestion containerId={el.id} oldText={oldText} oldHtml={oldHtml} oldElement={el} />);
 
         return false;
     });
