@@ -620,13 +620,14 @@ class EditSubQuestion extends React.Component {
         return false;
     }
 
+    /**
+     * @todo: No clean React way to do this?
+     * @see https://stackoverflow.com/questions/36985738/how-to-unmount-unrender-or-remove-a-component-from-itself-in-a-react-redux-typ
+     */
     onclickCancel(event) {
         event.preventDefault();
-        console.log('onclickCancel');
-        $(this.props.oldElement).replaceWith(this.props.oldHtml);
-        //data.questionId = this.props.containerId.replace('question', '');
-        //const id = '#' + this.props.containerId;
-        //resetContainerHtml(that.props.containerId)
+        $('#' + this.props.oldElement.id).html(this.props.oldHtml);
+        initEditSubquestion(this.props.oldElement);
         return false;
     }
 
@@ -780,7 +781,7 @@ function initEditSubquestion(el /*: HTMLElement */) {
         event.preventDefault();
 
         const container = document.createElement('div');
-        $(el).replaceWith(container);
+        $(el).html(container);
         const root = ReactDOM.createRoot(container);
         root.render(<EditSubQuestion oldText={oldText} oldHtml={oldHtml} oldElement={el} />);
 
