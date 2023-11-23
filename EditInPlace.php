@@ -72,6 +72,7 @@ class EditInPlace extends PluginBase
             App()->getClientScript()->registerScriptFile('https://unpkg.com/react-dom@18/umd/react-dom.development.js');
             App()->getClientScript()->registerScriptFile('https://unpkg.com/@babel/standalone/babel.min.js');
             $saveUrl        = $this->getUrlToAction($surveyId, 'actionSave');
+            $subquestionSaveUrl = $this->getUrlToAction($surveyId, 'actionSaveSubquestion');
             $saveAdvUrl     = $this->getUrlToAction($surveyId, 'actionSaveAdvancedForm');
             $moveUpUrl      = $this->getUrlToAction($surveyId, 'actionMoveUp');
             $moveDownUrl    = $this->getUrlToAction($surveyId, 'actionMoveDown');
@@ -92,19 +93,20 @@ class EditInPlace extends PluginBase
                 "EditInPlaceBaseGlobalData",
                 <<<JAVASCRIPT
 var editInPlaceGlobalData = {
-    saveUrl:        "$saveUrl",
-    saveAdvUrl:     "$saveAdvUrl",
-    moveUpUrl:      "$moveUpUrl",
-    moveDownUrl:    "$moveDownUrl",
-    getAttributesUrl: "$getAttributesUrl",
-    getTextsUrl:    "$getTextsUrl",
-    addQuestionUrl: "$addQuestionUrl",
-    deleteQuestionUrl: "$deleteQuestionUrl",
-    getStepUrl:     "$getStepUrl",
-    csrfTokenName: "$tokenName",
-    csrfToken:      "$csrfToken",
-    lang:           "$lang",
-    surveyId:       "$surveyId"
+    saveUrl:            "$saveUrl",
+    subquestionSaveUrl: "$subquestionSaveUrl",
+    saveAdvUrl:         "$saveAdvUrl",
+    moveUpUrl:          "$moveUpUrl",
+    moveDownUrl:        "$moveDownUrl",
+    getAttributesUrl:   "$getAttributesUrl",
+    getTextsUrl:        "$getTextsUrl",
+    addQuestionUrl:     "$addQuestionUrl",
+    deleteQuestionUrl:  "$deleteQuestionUrl",
+    getStepUrl:         "$getStepUrl",
+    csrfTokenName:      "$tokenName",
+    csrfToken:          "$csrfToken",
+    lang:               "$lang",
+    surveyId:           "$surveyId"
 };
 JAVASCRIPT
 ,
@@ -178,6 +180,54 @@ JAVASCRIPT
             http_response_code(400);
             echo json_encode("Could not save question text or help");
             Yii::app()->end();
+        }
+
+        // Reset session data
+        $this->killSession($surveyId);
+
+        echo json_encode("Saved");
+        http_response_code(200);
+        Yii::app()->end();
+    }
+
+    public function actionSaveSubquestion()
+    {
+        header('Content-Type: application/json');
+        $request    = Yii::app()->request;
+        $surveyId   = (int) $request->getParam('surveyId');
+        // This is the parent question id.
+        $questionId = (int) $request->getParam('questionId');
+        // This is the subquestion code.
+        $code       = $request->getParam('code');
+        $text       = $request->getParam('question');
+        $help       = $request->getParam('help');
+        $lang       = $request->getParam('lang');
+
+        if (!Permission::model()->hasSurveyPermission($surveyId, 'surveycontent', 'update')) {
+            throw new CHttpException(403, "No permission");
+        }
+
+        /** @var ?Question */
+        $parentQuestion = Question::model()->findByAttributes(['qid' => $questionId, 'sid' => $surveyId]);
+        if (empty($parentQuestion)) {
+            throw new CHttpException(404, "Parent question not found");
+        }
+
+        /** @var ?Question */
+        $subquestion = Question::model()->findByAttributes(['code' => $code, 'sid' => $surveyId, 'parent_qid' => $questionId]);
+        if (empty($subquestion)) {
+            throw new CHttpException(404, "Subquestion not found");
+        }
+
+        /** @var ?QuestionL10n */
+        $l10n = QuestionL10n::model()->findByAttributes(['qid' => $subquestion->qid, 'language' => $lang]);
+        if (empty($l10n)) {
+            throw new CHttpException(400, "Found no l10n with question id " . $subquestion->qid);
+        }
+
+        $l10n->question = $text;;
+        if (!$l10n->save()) {
+            throw new CHttpException(400, "Could not save question text or help");
         }
 
         // Reset session data

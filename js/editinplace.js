@@ -610,13 +610,41 @@ class TopButtons extends React.Component {
 class EditSubQuestion extends React.Component {
     constructor(props) {
         super(props);
-        this.onclick       = this.onclick.bind(this);
+        this.onclickSave   = this.onclickSave.bind(this);
         this.onclickCancel = this.onclickCancel.bind(this);
     }
 
-    onclick(event) {
+    onclickSave(event) {
         event.preventDefault();
         console.log("save");
+
+        const data = {};
+        data[editInPlaceGlobalData.csrfTokenName] = editInPlaceGlobalData.csrfToken;
+        data.lang = editInPlaceGlobalData.lang;
+        data.surveyId = editInPlaceGlobalData.surveyId;
+        data.questionId = this.props.containerId.replace('question', '');
+
+        $.post(
+            editInPlaceGlobalData.subquestionSaveUrl,
+            data,
+            function(data, textStatus, jqXHR) {
+                console.log('data', data);
+                resetContainerHtml(that.props.containerId)
+                    .then(() => showSuccessMessage(that.props.containerId, "Question saved"));
+            }
+        )
+            .fail(function(jqXHR) {
+                console.log('fail', jqXHR);
+                const alertText = JSON.parse(jqXHR.responseText);
+                const text = jqXHR.status + ": " + alertText;
+                showErrorMessage(that.props.containerId, text);
+                // Restore question, help, qid content
+                // TODO: Need to resetContainerHtml here, some stuff might have been saved, other not
+                for (const id in that.props.content) {
+                    $(id).text(that.props.content[id]);
+                }
+                that.props.flipState('base');
+            });
         return false;
     }
 
@@ -640,7 +668,7 @@ class EditSubQuestion extends React.Component {
         return <div>
             <input className="form-control" type="text" defaultValue={this.props.oldText} />
             <div className="edit-in-place-buttons">
-                <button onClick={this.onclick} className="btn btn-xs"><i className="fa fa-fw fa-save" title="Save" data-toggle="tooltip"></i></button>
+                <button onClick={this.onclickSave} className="btn btn-xs"><i className="fa fa-fw fa-save" title="Save" data-toggle="tooltip"></i></button>
                 <button onClick={this.onclickCancel} className="btn btn-xs" title="Cancel" data-toggle="tooltip">
                     <i className="fa fa-fw fa-close"></i>
                 </button>
